@@ -83,8 +83,7 @@ class SimpleLinearRegression:
     def _c(self, t0, t1):
         """Cost function"""
         return sum(
-            (self.h(t0, t1)(x) - y) ** 2
-            for x, y in self._training_set.items()
+            (self.h(t0, t1)(x) - y) ** 2 for x, y in self._training_set.items()
         ) / (2 * self._m)
 
     def _rmse(self, t0, t1):
@@ -104,8 +103,7 @@ class SimpleLinearRegression:
         return 1 - sum(
             (y_mean - y) ** 2 for y in self._training_set.values()
         ) / sum(
-            (self.h(t0, t1)(x) - y) ** 2
-            for x, y in self._training_set.items()
+            (self.h(t0, t1)(x) - y) ** 2 for x, y in self._training_set.items()
         )
 
     def train(self):
