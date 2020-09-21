@@ -22,7 +22,7 @@ class SimpleLinearRegression:
         self._t0 = self._t1 = 0
 
         if learning_procedure == LearningProcedure.GRADIENT_DESCENT:
-            self._alpha = 0.01
+            self._alpha = 0.00000001
             self._iterations = 1000
 
     @staticmethod
@@ -61,24 +61,14 @@ class SimpleLinearRegression:
     def _gd(self):
         """Gradient descent"""
 
-        for _ in range(self._iterations):
-            tmp0 = (
-                self._t0
-                - self._alpha
-                * sum(
-                    (self._h(self._t0, self._t1)(x) - y)
-                    for x, y in self._training_set.items()
-                )
-                / self._m
+        for i in range(self._iterations):
+            tmp0 = self._t0 - self._alpha / self._m * sum(
+                (self._h(self._t0, self._t1)(x) - y)
+                for x, y in self._training_set.items()
             )
-            tmp1 = (
-                self._t1
-                - self._alpha
-                * sum(
-                    (self._h(self._t0, self._t1)(x) - y) * x
-                    for x, y in self._training_set.items()
-                )
-                / self._m
+            tmp1 = self._t1 - self._alpha / self._m * sum(
+                (self._h(self._t0, self._t1)(x) - y) * x
+                for x, y in self._training_set.items()
             )
             self._t0 = tmp0
             self._t1 = tmp1
@@ -115,7 +105,7 @@ if __name__ == "__main__":
 
     ts = dict(zip(X, Y))
 
-    lr = SimpleLinearRegression(ts, LearningProcedure.ORDINARY_LEAST_SQUARE)
+    lr = SimpleLinearRegression(ts, LearningProcedure.GRADIENT_DESCENT)
 
     lr.train()
 
