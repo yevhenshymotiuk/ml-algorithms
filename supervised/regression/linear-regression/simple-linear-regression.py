@@ -1,6 +1,7 @@
 import math
-
 from enum import Enum
+
+import pandas as pd
 
 
 class LearningProcedure(Enum):
@@ -71,6 +72,17 @@ class SimpleLinearRegression:
             / self._m
         )
 
+    def _cod(self, t0, t1):
+        """Coefficient of determination"""
+        y_mean = sum(self._training_set.values()) / self._m
+
+        return 1 - sum(
+            (y_mean - y) ** 2 for y in self._training_set.values()
+        ) / sum(
+            (self._h(t0, t1)(x) - y) ** 2
+            for x, y in self._training_set.items()
+        )
+
     def _ols(self):
         "Ordinary least square"
         x_mean = sum(self._training_set.keys()) / self._m
@@ -92,24 +104,14 @@ class SimpleLinearRegression:
 
 
 if __name__ == "__main__":
-    ts = {
-        1: 1,
-        2: 4,
-        3: 9,
-        4: 16,
-        5: 25,
-        7: 49,
-        8: 64,
-        9: 81,
-        10: 100,
-        11: 121,
-        12: 144,
-        13: 149,
-        14: 196,
-    }
+    data = pd.read_csv("headbrain.csv")
+
+    X = data["Head Size(cm^3)"].values
+    Y = data["Brain Weight(grams)"]
+    ts = dict(zip(X, Y))
 
     lr = SimpleLinearRegression(ts, LearningProcedure.ORDINARY_LEAST_SQUARE)
 
     lr.train()
 
-    print(lr.predict(6))
+    print(lr.predict(4000))
