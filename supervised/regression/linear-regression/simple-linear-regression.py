@@ -9,7 +9,7 @@ class LearningProcedure(Enum):
 
 
 class SimpleLinearRegression:
-    """Simple linear regression implementation"""
+    """Linear regression with one input variable"""
 
     def __init__(self, training_set, learning_procedure):
         self._training_set = training_set
