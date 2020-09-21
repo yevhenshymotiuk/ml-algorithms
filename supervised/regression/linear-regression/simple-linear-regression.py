@@ -17,6 +17,7 @@ class SimpleLinearRegression:
         self._m = len(training_set)
         self.predict = None
         self.learning_procedure = learning_procedure
+        self._t0 = self._t1 = None
 
         if learning_procedure == LearningProcedure.GRADIENT_DESCENT:
             self._alpha = 0.01
@@ -34,9 +35,30 @@ class SimpleLinearRegression:
             for x, y in self._training_set.items()
         ) / (2 * self._m)
 
+    def _rmse(self, t0, t1):
+        """Root mean squared error"""
+        return math.sqrt(
+            sum(
+                (self._h(t0, t1)(x) - y) ** 2
+                for x, y in self._training_set.items()
+            )
+            / self._m
+        )
+
+    def _cod(self, t0, t1):
+        """Coefficient of determination"""
+        y_mean = sum(self._training_set.values()) / self._m
+
+        return 1 - sum(
+            (y_mean - y) ** 2 for y in self._training_set.values()
+        ) / sum(
+            (self._h(t0, t1)(x) - y) ** 2
+            for x, y in self._training_set.items()
+        )
+
     def _gd(self):
         """Gradient descent"""
-        t0, t1 = 0, 0
+        t0 = t1 = 0
 
         for _ in range(self._iterations):
             tmp0 = (
@@ -60,28 +82,7 @@ class SimpleLinearRegression:
             t0 = tmp0
             t1 = tmp1
 
-        return self._h(t0, t1)
-
-    def _rmse(self, t0, t1):
-        """Root mean squared error"""
-        return math.sqrt(
-            sum(
-                (self._h(t0, t1)(x) - y) ** 2
-                for x, y in self._training_set.items()
-            )
-            / self._m
-        )
-
-    def _cod(self, t0, t1):
-        """Coefficient of determination"""
-        y_mean = sum(self._training_set.values()) / self._m
-
-        return 1 - sum(
-            (y_mean - y) ** 2 for y in self._training_set.values()
-        ) / sum(
-            (self._h(t0, t1)(x) - y) ** 2
-            for x, y in self._training_set.items()
-        )
+        return t0, t1
 
     def _ols(self):
         "Ordinary least square"
@@ -93,14 +94,16 @@ class SimpleLinearRegression:
         ) / sum((x - x_mean) ** 2 for x in self._training_set)
         t0 = y_mean - t1 * x_mean
 
-        return self._h(t0, t1)
+        return t0, t1
 
     def train(self):
         """Train a model"""
         if self.learning_procedure == LearningProcedure.ORDINARY_LEAST_SQUARE:
-            self.predict = self._ols()
+            self._t0, self._t1 = self._ols()
         elif self.learning_procedure == LearningProcedure.GRADIENT_DESCENT:
-            self.predict = self._gd()
+            self._to, self._t1 = self._gd()
+
+        self.predict = self._h(self._t0, self._t1)
 
 
 if __name__ == "__main__":
