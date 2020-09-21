@@ -1,6 +1,8 @@
 import math
 from enum import Enum
 
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 
@@ -17,7 +19,7 @@ class SimpleLinearRegression:
         self._m = len(training_set)
         self.predict = None
         self.learning_procedure = learning_procedure
-        self._t0 = self._t1 = None
+        self._t0 = self._t1 = 0
 
         if learning_procedure == LearningProcedure.GRADIENT_DESCENT:
             self._alpha = 0.01
@@ -58,31 +60,30 @@ class SimpleLinearRegression:
 
     def _gd(self):
         """Gradient descent"""
-        t0 = t1 = 0
 
         for _ in range(self._iterations):
             tmp0 = (
-                t0
+                self._t0
                 - self._alpha
                 * sum(
-                    (self._h(t0, t1)(x) - y)
+                    (self._h(self._t0, self._t1)(x) - y)
                     for x, y in self._training_set.items()
                 )
                 / self._m
             )
             tmp1 = (
-                t1
+                self._t1
                 - self._alpha
                 * sum(
-                    (self._h(t0, t1)(x) - y) * x
+                    (self._h(self._t0, self._t1)(x) - y) * x
                     for x, y in self._training_set.items()
                 )
                 / self._m
             )
-            t0 = tmp0
-            t1 = tmp1
+            self._t0 = tmp0
+            self._t1 = tmp1
 
-        return t0, t1
+        return self._t0, self._t1
 
     def _ols(self):
         "Ordinary least square"
@@ -101,7 +102,7 @@ class SimpleLinearRegression:
         if self.learning_procedure == LearningProcedure.ORDINARY_LEAST_SQUARE:
             self._t0, self._t1 = self._ols()
         elif self.learning_procedure == LearningProcedure.GRADIENT_DESCENT:
-            self._to, self._t1 = self._gd()
+            self._t0, self._t1 = self._gd()
 
         self.predict = self._h(self._t0, self._t1)
 
@@ -111,10 +112,31 @@ if __name__ == "__main__":
 
     X = data["Head Size(cm^3)"].values
     Y = data["Brain Weight(grams)"]
+
     ts = dict(zip(X, Y))
 
     lr = SimpleLinearRegression(ts, LearningProcedure.ORDINARY_LEAST_SQUARE)
 
     lr.train()
+
+    print(f"{lr._t0=} {lr._t1=}")
+
+    # Plotting Values and Regression Line
+    max_x = np.max(X) + 100
+    min_x = np.min(X) - 100
+
+    # Calculating line values x and y
+    x = np.linspace(min_x, max_x, 1000)
+    y = lr._t0 + lr._t1 * x
+
+    # Ploting Line
+    plt.plot(x, y, color="#58b970", label="Regression Line")
+    # Ploting Scatter Points
+    plt.scatter(X, Y, c="#ef5423", label="Scatter Plot")
+
+    plt.xlabel("Head Size in cm3")
+    plt.ylabel("Brain Weight in grams")
+    plt.legend()
+    plt.show()
 
     print(lr.predict(4000))
