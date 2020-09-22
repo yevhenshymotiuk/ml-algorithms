@@ -24,8 +24,8 @@ class OrdinaryLeastSquare:
 
 @dataclass
 class GradientDescent:
-    alpha: float = 0.00000001
-    iterations: int = 1000
+    alpha: float
+    iterations: int
 
     @staticmethod
     def h(t0, t1):
@@ -56,11 +56,13 @@ class LearningProcedure(Enum):
 
 class LearningProcedureFactory:
     @classmethod
-    def create_learning_procedure(cls, learning_procedure):
+    def create_learning_procedure(
+        cls, learning_procedure, alpha=0.00000001, iterations=1000
+    ):
         if learning_procedure == LearningProcedure.ORDINARY_LEAST_SQUARE:
             return OrdinaryLeastSquare()
         elif learning_procedure == LearningProcedure.GRADIENT_DESCENT:
-            return GradientDescent()
+            return GradientDescent(alpha, iterations)
 
 
 class SimpleLinearRegression:
@@ -70,9 +72,7 @@ class SimpleLinearRegression:
         self._training_set = training_set
         self._m = len(training_set)
         self.predict = None
-        self._learning_procedure = LearningProcedureFactory.create_learning_procedure(
-            learning_procedure
-        )
+        self._learning_procedure = learning_procedure
         self._t0 = self._t1 = 0
 
     @staticmethod
@@ -120,7 +120,10 @@ if __name__ == "__main__":
 
     ts = dict(zip(X, Y))
 
-    lr = SimpleLinearRegression(ts, LearningProcedure.GRADIENT_DESCENT)
+    lp = LearningProcedureFactory.create_learning_procedure(
+        LearningProcedure.GRADIENT_DESCENT
+    )
+    lr = SimpleLinearRegression(ts, lp)
 
     lr.train()
 
