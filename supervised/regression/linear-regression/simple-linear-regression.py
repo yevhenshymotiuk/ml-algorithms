@@ -8,15 +8,15 @@ import pandas as pd
 
 
 class OrdinaryLeastSquare:
-    def __call__(self, training_set):
-        m = len(training_set)
+    def __call__(self, X, Y):
+        m = len(X)
 
-        x_mean = sum(training_set.keys()) / m
-        y_mean = sum(training_set.values()) / m
+        x_mean = sum(X) / m
+        y_mean = sum(Y) / m
 
-        t1 = sum(
-            (x - x_mean) * (y - y_mean) for x, y in training_set.items()
-        ) / sum((x - x_mean) ** 2 for x in training_set)
+        t1 = sum((x - x_mean) * (y - y_mean) for x, y in zip(X, Y)) / sum(
+            (x - x_mean) ** 2 for x in X
+        )
         t0 = y_mean - t1 * x_mean
 
         return t0, t1
@@ -32,16 +32,16 @@ class GradientDescent:
         """Hypothesis"""
         return lambda x: t0 + t1 * x
 
-    def __call__(self, training_set):
-        m = len(training_set)
+    def __call__(self, X, Y):
+        m = len(X)
         t0 = t1 = 0
 
         for i in range(self.iterations):
             tmp0 = t0 - self.alpha / m * sum(
-                (self.h(t0, t1)(x) - y) for x, y in training_set.items()
+                (self.h(t0, t1)(x) - y) for x, y in zip(X, Y)
             )
             tmp1 = t1 - self.alpha / m * sum(
-                (self.h(t0, t1)(x) - y) * x for x, y in training_set.items()
+                (self.h(t0, t1)(x) - y) * x for x, y in zip(X, Y)
             )
             t0 = tmp0
             t1 = tmp1
@@ -68,9 +68,10 @@ class LearningProcedureFactory:
 class SimpleLinearRegression:
     """Linear regression with one input variable"""
 
-    def __init__(self, training_set, learning_procedure):
-        self._training_set = training_set
-        self._m = len(training_set)
+    def __init__(self, X, Y, learning_procedure):
+        self._X = X
+        self._Y = Y
+        self._m = len(X)
         self.predict = None
         self._learning_procedure = learning_procedure
         self._t0 = self._t1 = 0
@@ -83,32 +84,27 @@ class SimpleLinearRegression:
     def _c(self, t0, t1):
         """Cost function"""
         return sum(
-            (self.h(t0, t1)(x) - y) ** 2 for x, y in self._training_set.items()
+            (self.h(t0, t1)(x) - y) ** 2 for x, y in zip(self._X, self._Y)
         ) / (2 * self._m)
 
     def _rmse(self, t0, t1):
         """Root mean squared error"""
         return math.sqrt(
-            sum(
-                (self.h(t0, t1)(x) - y) ** 2
-                for x, y in self._training_set.items()
-            )
+            sum((self.h(t0, t1)(x) - y) ** 2 for x, y in zip(self._X, self._Y))
             / self._m
         )
 
     def _cod(self, t0, t1):
         """Coefficient of determination"""
-        y_mean = sum(self._training_set.values()) / self._m
+        y_mean = sum(Y) / self._m
 
-        return 1 - sum(
-            (y_mean - y) ** 2 for y in self._training_set.values()
-        ) / sum(
-            (self.h(t0, t1)(x) - y) ** 2 for x, y in self._training_set.items()
+        return 1 - sum((y_mean - y) ** 2 for y in Y) / sum(
+            (self.h(t0, t1)(x) - y) ** 2 for x, y in zip(self._X, self._Y)
         )
 
     def train(self):
         """Train a model"""
-        self._t0, self._t1 = self._learning_procedure(self._training_set)
+        self._t0, self._t1 = self._learning_procedure(self._X, self._Y)
         self.predict = self.h(self._t0, self._t1)
 
 
@@ -118,12 +114,10 @@ if __name__ == "__main__":
     X = data["Head Size(cm^3)"].values
     Y = data["Brain Weight(grams)"]
 
-    ts = dict(zip(X, Y))
-
     lp = LearningProcedureFactory.create_learning_procedure(
         LearningProcedure.GRADIENT_DESCENT
     )
-    lr = SimpleLinearRegression(ts, lp)
+    lr = SimpleLinearRegression(X, Y, lp)
 
     lr.train()
 
