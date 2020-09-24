@@ -1,2 +1,5 @@
 # direnv
 .envrc
+
+# compiled python modules
+__pycache__/

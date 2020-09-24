@@ -3,9 +3,10 @@ from dataclasses import dataclass
 from enum import Enum
 
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import pandas as pd
+from mpl_toolkits.mplot3d import Axes3D
+from vectors import dot
 
 
 # TODO: Implement NormalEquation
@@ -22,7 +23,7 @@ class GradientDescent:
     @staticmethod
     def h(T):
         """Hypothesis"""
-        return lambda X: dot_product(T, X)
+        return lambda X: dot(T, X)
 
     def __call__(self, X, Y):
         m = len(X)
@@ -58,10 +59,6 @@ class LearningProcedureFactory:
             )
 
 
-def dot_product(A, B):
-    return sum(a * b for a in A for b in B)
-
-
 class LinearRegression:
     """Linear regression with multiple features"""
 
@@ -76,7 +73,7 @@ class LinearRegression:
     @staticmethod
     def h(T):
         """Hypothesis"""
-        return lambda X: dot_product(T, X)
+        return lambda X: dot(T, X)
 
     @property
     def _c(self):
