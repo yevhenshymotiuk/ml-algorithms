@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
-from vectors import dot
+from vectors import dot, multiply_by_number, subtract, vsum
 
 
 # TODO: Implement NormalEquation
@@ -30,13 +30,14 @@ class GradientDescent:
         T = [0] * len(X[0])
 
         for i in range(self.iterations):
-            T = [
-                t
-                - self.alpha
-                / m
-                * sum((self.h(T)(x) - y) * x[i] for x, y in zip(X, Y))
-                for i, t in enumerate(T)
-            ]
+            D = multiply_by_number(
+                vsum([
+                    multiply_by_number(x, self.h(T)(x) - y)
+                    for x, y in zip(X, Y)
+                ]),
+                1 / m,
+            )
+            T = subtract(T, multiply_by_number(D, self.alpha))
 
         return T
 
