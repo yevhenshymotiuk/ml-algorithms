@@ -3,3 +3,6 @@
 
 # compiled python modules
 __pycache__/
+
+# flycheck modules
+flycheck_*.py

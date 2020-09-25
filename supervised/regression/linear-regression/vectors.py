@@ -1,5 +1,6 @@
 from functools import reduce
 
+
 def add(A, B):
     return [A[i] + B[i] for i in range(len(A))]
 

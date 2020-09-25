@@ -1,4 +1,3 @@
-import math
 from dataclasses import dataclass
 from enum import Enum
 
@@ -6,13 +5,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
+from matrices import mul, transpose
 from vectors import dot, multiply_by_number, subtract, vsum
 
 
-# TODO: Implement NormalEquation
 class NormalEquation:
     def __call__(self, X, Y):
-        pass
+        Y = [[y] for y in Y]
+        return [
+            l[0]
+            for l in mul(
+                mul(np.linalg.inv(mul(transpose(X), X)), transpose(X)), Y
+            )
+        ]
 
 
 @dataclass
@@ -31,10 +36,12 @@ class GradientDescent:
 
         for i in range(self.iterations):
             D = multiply_by_number(
-                vsum([
-                    multiply_by_number(x, self.h(T)(x) - y)
-                    for x, y in zip(X, Y)
-                ]),
+                vsum(
+                    [
+                        multiply_by_number(x, self.h(T)(x) - y)
+                        for x, y in zip(X, Y)
+                    ]
+                ),
                 1 / m,
             )
             T = subtract(T, multiply_by_number(D, self.alpha))
@@ -54,10 +61,8 @@ class LearningProcedureFactory:
     ):
         if learning_procedure == LearningProcedure.GRADIENT_DESCENT:
             return GradientDescent(alpha, iterations)
-        else:
-            raise Exception(
-                "You can create only GradientDescent object for now"
-            )
+        elif learning_procedure == LearningProcedure.NORMAL_EQUATION:
+            return NormalEquation()
 
 
 class LinearRegression:
@@ -96,7 +101,7 @@ if __name__ == "__main__":
     Y = data["Writing"].values
 
     lp = LearningProcedureFactory.create_learning_procedure(
-        LearningProcedure.GRADIENT_DESCENT
+        LearningProcedure.NORMAL_EQUATION
     )
     lr = LinearRegression(list(zip(X1, X2)), Y, lp)
 
