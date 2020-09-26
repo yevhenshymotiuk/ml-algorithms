@@ -1,8 +1,11 @@
+import math
+from decimal import Decimal
+
 from utils.vectors import dot
 
 
-class LinearRegression:
-    """Linear regression with multiple features"""
+class LogisticRegression:
+    """Logistic regression with two classes"""
 
     def __init__(self, X, Y, learning_procedure):
         self._X = [(1, *x) for x in X]
@@ -15,14 +18,21 @@ class LinearRegression:
     @staticmethod
     def h(T):
         """Hypothesis"""
-        return lambda X: dot(T, X)
+        g = lambda z: 1 / 1 - math.e ** -z
+
+        return lambda X: g(dot(T, X))
 
     @property
     def _c(self):
         """Cost function"""
-        return sum(
-            (self.h(self._T)(x) - y) ** 2 for x, y in zip(self._X, self._Y)
-        ) / (2 * self._m)
+        return (
+            sum(
+                y * math.log2(self.h(self._T)(x))
+                + (1 - y) * math.log2(1 - self.h(self._T)(x))
+                for x, y in zip(self._X, self._Y)
+            )
+            / -self._m
+        )
 
     def train(self):
         """Train a model"""
