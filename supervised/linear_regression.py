@@ -32,7 +32,7 @@ class GradientDescent:
         m = len(X)
         T = [0] * len(X[0])
 
-        for i in range(self.iterations):
+        for _ in range(self.iterations):
             D = multiply_by_number(
                 vsum(
                     [
@@ -59,8 +59,8 @@ class LearningProcedureFactory:
     ):
         if learning_procedure == LearningProcedure.GRADIENT_DESCENT:
             return GradientDescent(alpha, iterations)
-        elif learning_procedure == LearningProcedure.NORMAL_EQUATION:
-            return NormalEquation()
+
+        return NormalEquation()
 
 
 class LinearRegression:
