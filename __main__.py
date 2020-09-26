@@ -2,20 +2,22 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 
-from supervised.learning_procedure import LearningProcedure, LearningProcedureFactory
+from supervised.learning_procedure import (
+    LearningProcedure,
+    LearningProcedureFactory,
+)
 from supervised.linear_regression import LinearRegression
 from supervised.logistic_regression import LogisticRegression
 
 
 def test_linear_regression():
-    data = pd.read_csv("student.csv")
+    data = pd.read_csv("datasets/student.csv")
 
     X1, X2 = data["Math"].values, data["Reading"].values
     Y = data["Writing"].values
 
     lp = LearningProcedureFactory.create_learning_procedure(
-        LearningProcedure.GRADIENT_DESCENT,
-        LinearRegression.h,
+        LearningProcedure.GRADIENT_DESCENT, LinearRegression.h,
     )
     lr = LinearRegression(list(zip(X1, X2)), Y, lp)
 
@@ -32,14 +34,17 @@ def test_linear_regression():
 
 
 def test_logistic_regression():
-    data = pd.read_csv("headbrain.csv")
+    data = pd.read_csv("datasets/headbrain.csv")
 
-    X1, X2, X3 = data["Age Range"].values, data["Head Size(cm^3)"].values, data["Brain Weight(grams)"].values
+    X1, X2, X3 = (
+        data["Age Range"].values,
+        data["Head Size(cm^3)"].values,
+        data["Brain Weight(grams)"].values,
+    )
     Y = data["Gender"].values
 
     lp = LearningProcedureFactory.create_learning_procedure(
-        LearningProcedure.GRADIENT_DESCENT,
-        LogisticRegression.h,
+        LearningProcedure.GRADIENT_DESCENT, LogisticRegression.h,
     )
     lr = LogisticRegression(list(zip(X1, X2, X3)), Y, lp)
 
@@ -48,4 +53,5 @@ def test_logistic_regression():
     print(lr.predict((1, 1, 3500, 1300)))
 
 
+# test_linear_regression()
 test_logistic_regression()
