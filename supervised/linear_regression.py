@@ -1,12 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum
 
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-from mpl_toolkits.mplot3d import Axes3D
-from matrices import mul, transpose
-from vectors import dot, multiply_by_number, subtract, vsum
+
+from utils.matrices import mul, transpose
+from utils.vectors import dot, multiply_by_number, subtract, vsum
 
 
 class NormalEquation:
@@ -92,26 +90,3 @@ class LinearRegression:
         """Train a model"""
         self._T = self._learning_procedure(self._X, self._Y)
         self.predict = self.h(self._T)
-
-
-if __name__ == "__main__":
-    data = pd.read_csv("student.csv")
-
-    X1, X2 = data["Math"].values, data["Reading"].values
-    Y = data["Writing"].values
-
-    lp = LearningProcedureFactory.create_learning_procedure(
-        LearningProcedure.NORMAL_EQUATION
-    )
-    lr = LinearRegression(list(zip(X1, X2)), Y, lp)
-
-    lr.train()
-
-    print(f"{lr._T=} {lr._c=}")
-
-    fig = plt.figure()
-    ax = Axes3D(fig)
-    ax.scatter(X1, X2, Y, color="#ef1234")
-    plt.show()
-
-    print(lr.predict((1, 60, 70)))
